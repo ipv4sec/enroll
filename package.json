@@ -1,0 +1,19 @@
+{
+  "name": "enroll",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bootstrap": "^3.4.1",
+    "bootstrap-notify": "github:mouse0270/bootstrap-notify",
+    "filepond": "4.3.9",
+    "jquery": "^1.12.4",
+    "jquery-filepond": "^1.0.0"
+  }
+}

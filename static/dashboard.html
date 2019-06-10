@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>enroll</title>
+    <link rel="stylesheet" href="/dist/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="shortcut icon" href="/img/olives.png"/>
+    <link rel="bookmark" href="/img/olives.png"/>
+    <link rel="stylesheet" href="/css/notify.css">
+    <link href="/dist/filepond/dist/filepond.min.css" rel="stylesheet" />
+    <style>
+        html {
+            font-family: "PT Serif", Georgia, Times, "Times New Roman", serif;;
+        }
+        .navbar-brand {
+            font-size: 14px;
+        }
+        h4 {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="dashboard.html">报名系统</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="dashboard.html">主页</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="#" id="userId">未知用户</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row" style="margin-top: 80px;">
+        <div class="col-md-11">
+            <a type="button" class="btn btn-black" href="/example">
+                <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> 下载CSV样例
+            </a>
+        </div>
+        <div class="col-md-1">
+            <button type="button" class="btn btn-black" onclick="logout()">
+                <span class="glyphicon glyphicon-off" aria-hidden="true"></span> 退出
+            </button>
+        </div>
+        <div class="col-md-12" style="border-top: 1px solid #ce4844; padding-top: 20px; margin-top: 10px;">
+
+            <div class="tabbable">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#import" data-toggle="tab"><span class="glyphicon glyphicon-plus-sign"
+                                                                                 aria-hidden="true"></span> 导入数据</a>
+                    </li>
+                    <li><a href="#importedTab" data-toggle="tab"><span class="glyphicon glyphicon-eye-open"
+                                                                       aria-hidden="true"></span> 查看已导入数据</a></li>
+                    <li><a href="#admin" data-toggle="tab"><span class="glyphicon glyphicon-edit"
+                                                                 aria-hidden="true"></span> 管理</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="import">
+
+                        <div style="margin-top: 20px; margin-bottom: 20px;">
+                            <button type="button" class="btn btn-black" onclick="location.reload();">
+                                <span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span> 放弃 /
+                                <span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span> 完成此次操作
+                            </button>
+                        </div>
+
+                        <div>
+                            <hr />
+                            <h5>上传文件</h5>
+                            <div style="margin-top: 20px; ">
+                                <input type="file" class="my-pond" name="filepond" id="uploaded"/>
+                            </div>
+                        </div>
+
+
+
+                        <div style="margin-top: 20px; margin-bottom: 20px;">
+                            <hr />
+                            <button id="analyzeCsvBtn" type="button" class="btn btn-black"
+                                    onclick="fetchParseCsvFileApi()">
+                                <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span> 解析文件内容
+                            </button>
+                        </div>
+                        <div id="analyzedCsvTable">
+                            <table class="table table-hover table-bordered">
+                                <thead>
+                                <tr>
+                                    <th>姓名</th>
+                                    <th>身份证号</th>
+                                    <th>报考层次</th>
+                                    <th>专业名称</th>
+                                </tr>
+                                </thead>
+                                <tbody id="analyzed">
+                                </tbody>
+                            </table>
+                        </div>
+
+
+
+                        <div style="margin-top: 20px; margin-bottom: 20px;">
+                            <hr />
+                            <button id="importCsvBtn" type="button" class="btn btn-black" onclick="fetchImportCsvFileApi()">
+                                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> 导入文件内容
+                            </button>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="importedTab">
+                        <div class="alert alert-danger" style="margin-top: 20px; margin-bottom: 20px;">
+                            正式提交后, 无法更改上传
+                        </div>
+                        <button type="button" class="btn btn-black" onclick="fetchUsersApi()">
+                            <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span> 点击查看
+                        </button>
+                        <button type="button" class="btn btn-warning" onclick="fetchConfirmAllSiteUserApi()">
+                            <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span> 正式提交
+                        </button>
+                        <div id="allImported">
+                            <table class="table table-hover table-bordered" style="margin-top: 20px;">
+                                <thead>
+                                <tr>
+                                    <th>姓名</th>
+                                    <th>身份证号</th>
+                                    <th>报考层次</th>
+                                    <th>专业名称</th>
+                                    <th>操作</th>
+                                </tr>
+                                </thead>
+                                <tbody id="users"></tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                    <div class="tab-pane" id="admin" style="padding-top: 20px;">
+                        <div id="passAdmin">
+                            <h5>密码管理</h5>
+                            <div class="row" style="margin-top: 20px; padding-bottom: 20px;">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <input type="password" class="form-control" placeholder="旧密码" id="oldPass">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="password" class="form-control" placeholder="新密码" id="newPass">
+                                    </div>
+                                    <button type="button" class="btn btn-black" onclick="changePassword()">
+                                        <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> 确认修改
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="siteAdmin">
+                            <hr/>
+                            <h5>函授站管理</h5>
+                            <div class="row" style="margin-top: 20px">
+
+                                <div class="col-md-4">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" placeholder="新站点名称" id="newSiteName">
+                                        <span class="input-group-btn">
+                                        <button class="btn btn-default" type="button" onclick="fetchAddSiteApi()">
+                                            <span class="glyphicon glyphicon-floppy-save" aria-hidden="true"></span> 新增</button>
+                                    </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" style="margin-top: 20px">
+
+                                <div class="col-md-6">
+                                    <table class="table table-hover table-bordered" style="margin-top: 10px;">
+                                        <thead>
+                                        <tr>
+                                            <th>站点名称</th>
+                                            <th>操作</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="sites">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="teacherAdmin">
+                            <hr/>
+                            <h5>老师管理</h5>
+                            <div class="row" style="margin-top: 20px; padding-bottom: 20px;">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" placeholder="用户名" id="adminName">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="password" class="form-control" placeholder="密码" id="adminPass">
+                                    </div>
+
+                                    <div style="margin-bottom: 10px;">
+                                        <span>所属函授站</span>
+                                    </div>
+                                    <select class="form-control" id="optionSites">
+                                    </select>
+                                    <br />
+                                    <button type="button" class="btn btn-black" onclick="fetchAddAdminApi()"><span
+                                            class="glyphicon glyphicon-plus" aria-hidden="true"></span> 新增
+                                    </button>
+                                </div>
+                            </div>
+
+                            <hr />
+                            <div class="row" >
+                                <div class="col-md-4">
+                                <input type="text" class="form-control" placeholder="重置密码" ID="adminNewPasswd">
+                                </div>
+                            </div>
+
+                            <div class="row" style="margin-top: 20px">
+                                <div class="col-md-6">
+                                    <table class="table table-hover table-bordered" style="margin-top: 10px;">
+                                        <thead>
+                                        <tr>
+                                            <th>老师名称</th>
+                                            <th>所属学院</th>
+                                            <th>操作</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="adminTable">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/dist/jquery/dist/jquery.min.js"></script>
+<script src="/dist/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/dist/filepond/dist/filepond.min.js"></script>
+<script src="/dist/jquery-filepond/filepond.jquery.js"></script>
+<script src="/dist/bootstrap-notify/bootstrap-notify.min.js"></script>
+<script src="/js/notify.js"></script>
+<script>
+
+    var sites = {};
+
+    $("#analyzeCsvBtn").prop('disabled', true);
+    $("#importCsvBtn").prop('disabled', true);
+    $("#analyzedCsvTable").hide();
+    $("#allImported").hide();
+
+    FilePond.setOptions({
+        instantUpload: true,
+        allowMultiple: false,
+        allowReplace: false,
+        allowRevert: false,
+        server: {
+            url: "/v1/file",
+            process: {
+                onload: function (res) {
+                    logger("文件上传成功", "服务器保存文件名为" + res, "info");
+                    return res;
+                },
+                onerror: function (res) {
+                    return res
+                }
+            }
+        },
+        labelIdle: '拖拽你的文件到这 或者 <span class="filepond--label-action"> 点击浏览本地文件 </span>',
+        labelFileProcessing: '正在上传',
+        labelFileProcessingComplete: '操作完成',
+        labelTapToCancel: '点击右侧旋转按钮取消上传',
+        labelTapToUndo: '取消上传',
+        labelFileProcessingAborted: '上传被取消',
+        labelTapToRetry: '点击右侧旋转按钮重试上传',
+        labelFileProcessingError: function (result) {
+            res = JSON.parse(result.body);
+            logger(res["message"], res["error"], "danger");
+            return "上传失败"
+        }
+    });
+    $('.my-pond').filepond();
+    $('.my-pond').on('FilePond:processfile', function() {
+        $("#analyzeCsvBtn").prop('disabled', false);
+    });
+
+
+
+    if (window.localStorage.getItem("name") != null) {
+        $("#userId").text(window.localStorage.getItem("name"));
+    } else {
+        window.location.href = "index.html";
+    }
+
+    $("#siteAdmin").hide();
+    fetchAllSitesApi();
+    fetchAllAdminsApi();
+
+    function fetchParseCsvFileApi() {
+        // 请求接口填充数据
+        var url = "/v1/file?filename=" + $("input[type=hidden]").val();
+        $.ajax({
+            headers: {
+                'X-Access-Token': window.localStorage.getItem("token") || ""
+            },
+            url: url,
+            type: "GET",
+            dataType: "json",
+            statusCode: {
+                200: function(result) {
+                    for (var i = 0; i < result.data.length; i++) {
+                        var html = "<tr>";
+                        html += "<td>" + result.data[i][0] + "</td>";
+                        html += "<td>" + result.data[i][1] + "</td>";
+                        html += "<td>" + result.data[i][2] + "</td>";
+                        html += "<td>" + result.data[i][3] + "</td>";
+                        html += "</tr>";
+                        $("#analyzed").append(html);
+                    }
+
+                    $("#analyzeCsvBtn").prop('disabled', true);
+                    $("#analyzedCsvTable").show();
+                    $("#importCsvBtn").prop('disabled', false);
+                },
+                400: function (result) {
+                    return logger(result["responseJSON"]["message"], result["responseJSON"]["error"], "danger")
+                }
+            }
+        });
+    }
+
+    function fetchImportCsvFileApi() {
+        var url = "/v1/user?filename=" + $("input[type=hidden]").val() + "&siteId=" + window.localStorage.getItem("siteId");
+        $.ajax({
+            headers: {
+                'X-Access-Token': window.localStorage.getItem("token") || ""
+            },
+            url: url,
+            type: "POST",
+            dataType: "json",
+            statusCode: {
+                200: function(result) {
+                    $("#importCsvBtn").prop('disabled', true);
+                    return logger("导入成功", result["message"], "info")
+                },
+                400: function (result) {
+                    return logger(result["responseJSON"]["message"], result["responseJSON"]["error"], "danger")
+                }
+            }
+        });
+    }
+
+    function logout() {
+        window.location.href = "index.html";
+    }
+    
+    function changePassword() {
+        var url = "/v1/password?userId=" + window.localStorage.getItem("id");
+        if ($("#oldPass").val().trim() === "") {
+            return logger("填写错误", "旧密码为空", "danger")
+        }
+        if ($("#newPass").val().trim() === "") {
+            return logger("填写错误", "新密码为空", "danger")
+        }
+
+        $.ajax({
+            headers: {
+                'X-Access-Token': window.localStorage.getItem("token") || ""
+            },
+            url: url,
+            type: "PUT",
+            contentType: "application/json;charset=utf-8",
+            data: JSON.stringify({
+                "oldPass": $("#oldPass").val().trim(),
+                "newPass": $("#newPass").val().trim()
+            }),
+            dataType: "json",
+            statusCode: {
+                200: function(result) {
+                    return logger("修改成功", result['message'], "info")
+                },
+                400: function(result) {
+                    return logger(result["responseJSON"]["message"], result["responseJSON"]["error"], "danger")
+                }
+            }
+        });
+    }
+    function changePasswordbByAdminId(adminId) {
+        if ($("#adminNewPasswd").val().trim() === "") {
+            return logger("填写错误", "重置密码为空", "danger")
+        }
+
+        var url = "/v1/admin";
+        $.ajax({
+            headers: {
+                'X-Access-Token': window.localStorage.getItem("token") || ""
+            },
+            url: url,
+            type: "PUT",
+            contentType: "application/json;charset=utf-8",
+            data: JSON.stringify({
+                "id": adminId,
+                "pass": $("#adminNewPasswd").val().trim()
+            }),
+            dataType: "json",
+            statusCode: {
+                200: function(result) {
+                    return logger("修改成功", result['message'], "info")
+                },
+                400: function(result) {
+                    return logger(result["responseJSON"]["message"], result["responseJSON"]["error"], "danger")
+                }
+            }
+        });
+    }
+    
+    function fetchUsersApi() {
+        var url = "/v1/user?siteId=" + window.localStorage.getItem("siteId");
+        $.ajax({
+            headers: {
+                'X-Access-Token': window.localStorage.getItem("token") || ""
+            },
+            url: url,
+            type: "GET",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            statusCode: {
+                200: function(result) {
+                    $("#users > tr").remove();
+
+                    for (var i = 0; i < result.data.length; i++) {
+                        var html = "<tr>";
+                        html += "<td>" + result.data[i]["name"] + "</td>";
+                        html += "<td>" + result.data[i]["num"] + "</td>";
+                        html += "<td>" + result.data[i]["enroll"] + "</td>";
+                        html += "<td>" + result.data[i]["major"] + "</td>";
+                        if (result.data[i]["tag"] === 2 ) {
+                            html += "<td><button type=\"button\" class=\"btn btn-sm btn-success\">" +
+                                "<span class=\"glyphicon glyphicon-exclamation-sign\" aria-hidden=\"true\"></span> 已提交, 无法操作" +
+                                "</button></td>";
+                        } else {
+                            html += "<td><button type=\"button\" class=\"btn btn-sm btn-danger\" onclick=\"fetchDeleteUserApi(" + result.data[i]["id"] + ")\">" +
+                                "<span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span> 删除" +
+                                "</button></td>";
+                        }
+                        html += "</tr>";
+                        $("#allImported").show();
+                        $("#users").append(html);
+                    }
+                    return logger("获取成功", result["message"], "info")
+                }
+            }
+        });
+    }
+
+    function fetchDeleteUserApi(userId) {
+        var url = "/v1/user?userId=" + userId;
+        $.ajax({
+            headers: {
+                'X-Access-Token': window.localStorage.getItem("token") || ""
+            },
+            url: url,
+            type: "DELETE",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            statusCode: {
+                200: function(result) {
+                    fetchUsersApi();
+
+                    return logger("删除成功", result["message"], "info")
+                },
+                400: function(result) {
+                    return logger(result["responseJSON"]["message"], result["responseJSON"]["error"], "danger")
+                }
+            }
+        });
+    }
+
+    function fetchConfirmAllSiteUserApi(userId) {
+        var url = "/v1/user?siteId=" + window.localStorage.getItem("siteId");
+        $.ajax({
+            headers: {
+                'X-Access-Token': window.localStorage.getItem("token") || ""
+            },
+            url: url,
+            type: "PUT",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            statusCode: {
+                200: function(result) {
+                    return logger("删除成功", result["message"], "info")
+                },
+                400: function(result) {
+                    return logger(result["responseJSON"]["message"], result["responseJSON"]["error"], "danger")
+                }
+            }
+        });
+    }
+    
+    function fetchAllSitesApi() {
+        $("#sites > tr").remove();
+
+        var url = "/v1/site";
+        $.ajax({
+            headers: {
+                'X-Access-Token': window.localStorage.getItem("token") || ""
+            },
+            url: url,
+            type: "GET",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            statusCode: {
+                200: function(result) {
+                    $("#siteAdmin").show();
+                    sites = {}
+                    for (var i = 0; i < result.data.length; i++){
+                        sites[result.data[i]["id"]] = result.data[i]["name"];
+                        var html = "<tr>";
+                        html += "<td>" + result.data[i]["name"] + "</td>";
+                        html += "<td><button type=\"button\" class=\"btn btn-sm btn-danger\" onclick=\"fetchDeleteSiteApi(" + result.data[i]["id"] + ")\">" +
+                            "<span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span> 删除</button></td>";
+                        html += "</tr>";
+                        $("#sites").append(html);
+                    }
+
+                    $("#optionSites option").remove();
+                    for (var siteId in sites) {
+                        $("#optionSites").append("<option value='"+siteId+"'>"+sites[siteId]+"</option>");
+                    }
+                },
+                403: function () {
+                    $("#teacherAdmin").hide()
+                }
+            }
+        });
+    }
+    function fetchDeleteSiteApi(siteId) {
+        var url = "/v1/site?siteId=" + siteId;
+        $.ajax({
+            headers: {
+                'X-Access-Token': window.localStorage.getItem("token") || ""
+            },
+            url: url,
+            type: "DELETE",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            statusCode: {
+                200: function(result) {
+                    fetchAllSitesApi();
+
+                    return logger("删除成功", result["message"], "info")
+                },
+                400: function(result) {
+                    return logger(result["responseJSON"]["message"], result["responseJSON"]["error"], "danger")
+                }
+            }
+        });
+    }
+
+    function fetchAddSiteApi() {
+        if ($("#newSiteName").val().trim() === "") {
+            return logger("填写错误", "函授站为空", "danger")
+        }
+        var url = "/v1/site";
+        $.ajax({
+            headers: {
+                'X-Access-Token': window.localStorage.getItem("token") || ""
+            },
+            url: url,
+            type: "POST",
+            dataType: "json",
+            data: JSON.stringify({
+                "name": $("#newSiteName").val().trim(),
+            }),
+            statusCode: {
+                200: function(result) {
+                    $("#importCsvBtn").prop('disabled', true);
+                    fetchAllSitesApi();
+                    return logger("添加成功", result["message"], "info")
+                },
+                400: function (result) {
+                    return logger(result["responseJSON"]["message"], result["responseJSON"]["error"], "danger")
+                }
+            }
+        });
+    }
+    function fetchAddAdminApi() {
+        if ($("#adminName").val().trim() === "") {
+            return logger("填写错误", "新增老师名称为空", "danger")
+        }
+        if ($("#adminPass").val().trim() === "") {
+            return logger("填写错误", "新增老师密码为空", "danger")
+        }
+        var url = "/v1/admin";
+        $.ajax({
+            headers: {
+                'X-Access-Token': window.localStorage.getItem("token") || ""
+            },
+            url: url,
+            type: "POST",
+            dataType: "json",
+            data: JSON.stringify({
+                "name": $("#adminName").val().trim(),
+                "pass": $("#adminPass").val().trim(),
+                "siteId": $("#optionSites").val().trim(),
+            }),
+            statusCode: {
+                200: function(result) {
+                    $("#importCsvBtn").prop('disabled', true);
+                    fetchAllAdminsApi();
+                    return logger("添加成功", result["message"], "info")
+                },
+                400: function (result) {
+                    return logger(result["responseJSON"]["message"], result["responseJSON"]["error"], "danger")
+                }
+            }
+        });
+    }
+
+    function fetchAllAdminsApi() {
+        $("#adminTable > tr").remove();
+
+        var url = "/v1/admin";
+        $.ajax({
+            headers: {
+                'X-Access-Token': window.localStorage.getItem("token") || ""
+            },
+            url: url,
+            type: "GET",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            statusCode: {
+                200: function(result) {
+                    for (var i = 0; i < result.data.length; i++){
+                        var html = "<tr>";
+                        html += "<td>" + result.data[i]["name"] + "</td>";
+                        html += "<td>" + sites[result.data[i]["siteId"]] + "</td>";
+                        html += "<td>" +
+                            "<button type=\"button\" class=\"btn btn-sm btn-default\" onclick='changePasswordbByAdminId(" + result.data[i]["id"] + ")'>" +
+                            "<span class=\"glyphicon glyphicon-floppy-save\" aria-hidden=\"true\"></span> 修改密码为上述输入框密码 </button>\n" +
+                            "<button type=\"button\" class=\"btn btn-sm btn-danger\" onclick='fetchDeleteAdminApi(" + result.data[i]["id"] + ")'>" +
+                            "<span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span> 删除</button>\n" +
+                            "</td>";
+                        html += "</tr>";
+                        $("#adminTable").append(html);
+                    }
+                }
+            }
+        });
+    }
+
+    function fetchDeleteAdminApi(adminId) {
+        var url = "/v1/admin?adminId=" + adminId;
+        $.ajax({
+            headers: {
+                'X-Access-Token': window.localStorage.getItem("token") || ""
+            },
+            url: url,
+            type: "DELETE",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            statusCode: {
+                200: function(result) {
+                    fetchAllAdminsApi();
+
+                    return logger("删除成功", result["message"], "info")
+                },
+                400: function(result) {
+                    return logger(result["responseJSON"]["message"], result["responseJSON"]["error"], "danger")
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>

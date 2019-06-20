@@ -44,7 +44,7 @@
 <div class="container">
     <div class="row" style="margin-top: 80px;">
         <div class="col-md-11">
-            <a type="button" class="btn btn-black" href="/example">
+            <a type="button" class="btn btn-black" href="/uploads/example.csv">
                 <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> 下载CSV样例
             </a>
         </div>
@@ -116,29 +116,79 @@
                             </button>
                         </div>
                     </div>
-                    <div class="tab-pane" id="importedTab">
-                        <div class="alert alert-danger" style="margin-top: 20px; margin-bottom: 20px;">
-                            正式提交后, 无法更改上传
+                    <div class="tab-pane" id="importedTab" style="padding-top: 20px;">
+
+                        <div id="">
+                            <h5>统计</h5>
+                            <div class="row" style="margin-top: 20px; padding-bottom: 20px;">
+                                <ul class="nav nav-pills" role="tablist" id="census"></ul>
+                            </div>
                         </div>
-                        <button type="button" class="btn btn-black" onclick="fetchUsersApi()">
-                            <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span> 点击查看
-                        </button>
-                        <button type="button" class="btn btn-warning" onclick="fetchConfirmAllSiteUserApi()">
-                            <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span> 正式提交
-                        </button>
-                        <div id="allImported">
-                            <table class="table table-hover table-bordered" style="margin-top: 20px;">
-                                <thead>
-                                <tr>
-                                    <th>姓名</th>
-                                    <th>身份证号</th>
-                                    <th>报考层次</th>
-                                    <th>专业名称</th>
-                                    <th>操作</th>
-                                </tr>
-                                </thead>
-                                <tbody id="users"></tbody>
-                            </table>
+
+                        <div id="">
+                            <hr />
+                            <h5>导出</h5>
+                            <div class="row" style="margin-top: 20px; padding-bottom: 20px;">
+                                <div class="col-md-4">
+                                    <select class="form-control" id="optionSites">
+                                    </select>
+                                    <br />
+                                    <button type="button" class="btn btn-black" onclick=""><span
+                                            class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> 导出
+                                    </button>
+                                    <button type="button" class="btn btn-black" onclick=""><span
+                                            class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> 导出全部
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div id="importedSearchResult">
+                            <hr />
+                            <h5>搜索</h5>
+                            <div class="row" style="margin-top: 20px; padding-bottom: 20px;">
+                                <div class="col-md-4">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" placeholder="身份证号" id="cardNum">
+                                        <span class="input-group-btn">
+                                        <button class="btn btn-default" type="button" onclick="fetchSearchUserByCardNumApi()">
+                                            <span class="glyphicon glyphicon-search" aria-hidden="true"></span> 搜索</button>
+                                    </span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-10">
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div id="importedResult">
+                            <hr />
+                            <div class="alert alert-danger" style="margin-top: 20px; margin-bottom: 20px;">
+                                正式提交后, 无法更改上传
+                            </div>
+                            <button type="button" class="btn btn-black" onclick="fetchUsersApi()">
+                                <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span> 点击查看
+                            </button>
+                            <button type="button" class="btn btn-warning" onclick="fetchConfirmAllSiteUserApi()">
+                                <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span> 正式提交
+                            </button>
+                            <div id="allImported">
+                                <table class="table table-hover table-bordered" style="margin-top: 20px;">
+                                    <thead>
+                                    <tr>
+                                        <th>姓名</th>
+                                        <th>身份证号</th>
+                                        <th>报考层次</th>
+                                        <th>专业名称</th>
+                                        <th>操作</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="users"></tbody>
+                                </table>
+                            </div>
                         </div>
 
                     </div>
@@ -308,6 +358,8 @@
     $("#siteAdmin").hide();
     fetchAllSitesApi();
     fetchAllAdminsApi();
+    fetchCensusApi();
+    fetchPermissionApi();
 
     function fetchParseCsvFileApi() {
         // 请求接口填充数据
@@ -466,6 +518,52 @@
         });
     }
 
+    function fetchSearchUserByCardNumApi() {
+        if ($("#cardNum").val().trim() === "") {
+            return logger("搜索错误", "身份证号为空", "danger")
+        }
+        var url = "/v1/search?cardNum=" + $("#cardNum").val().trim()
+        $.ajax({
+            headers: {
+                'X-Access-Token': window.localStorage.getItem("token") || ""
+            },
+            url: url,
+            type: "GET",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            statusCode: {
+                200: function(result) {
+                    $("#users > tr").remove();
+
+                    for (var i = 0; i < result.data.length; i++) {
+                        var html = "<tr>";
+                        html += "<td>" + result.data[i]["name"] + "</td>";
+                        html += "<td>" + result.data[i]["num"] + "</td>";
+                        html += "<td>" + result.data[i]["enroll"] + "</td>";
+                        html += "<td>" + result.data[i]["major"] + "</td>";
+                        if (result.data[i]["tag"] === 2 ) {
+                            html += "<td><button type=\"button\" class=\"btn btn-sm btn-success\">" +
+                                    "<span class=\"glyphicon glyphicon-exclamation-sign\" aria-hidden=\"true\"></span> 已提交, 无法操作" +
+                                    "</button></td>";
+                        } else {
+                            html += "<td><button type=\"button\" class=\"btn btn-sm btn-danger\" onclick=\"fetchDeleteUserApi(" + result.data[i]["id"] + ")\">" +
+                                    "<span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span> 删除" +
+                                    "</button></td>";
+                        }
+                        html += "</tr>";
+                        $("#allImported").show();
+                        $("#users").append(html);
+                    }
+                    if (result.data.length == 0) {
+                        return logger("获取成功", "搜索结果为空", "info")
+                    } else{
+                        return logger("获取成功", result["message"], "info")
+                    }
+                }
+            }
+        });
+    }
+
     function fetchDeleteUserApi(userId) {
         var url = "/v1/user?userId=" + userId;
         $.ajax({
@@ -501,7 +599,7 @@
             dataType: "json",
             statusCode: {
                 200: function(result) {
-                    return logger("删除成功", result["message"], "info")
+                    return logger("提交成功", result["message"], "info")
                 },
                 400: function(result) {
                     return logger(result["responseJSON"]["message"], result["responseJSON"]["error"], "danger")
@@ -680,6 +778,52 @@
                 },
                 400: function(result) {
                     return logger(result["responseJSON"]["message"], result["responseJSON"]["error"], "danger")
+                }
+            }
+        });
+    }
+
+    function fetchCensusApi() {
+
+        var url = "/v1/census";
+        $.ajax({
+            headers: {
+                'X-Access-Token': window.localStorage.getItem("token") || ""
+            },
+            url: url,
+            type: "GET",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            statusCode: {
+                200: function(result) {
+                    for (var i = 0; i < result.data.length; i++){
+                        html = "<li role=\"presentation\"><a href=\"#\">";
+                        html += sites[result.data[i]["siteId"]] + "<span class=\"badge\">";
+                        html += result.data[i]["num"] + "</span></a></li>";
+                        $("#census").append(html);
+                    }
+                }
+            }
+        });
+    }
+
+    function fetchPermissionApi() {
+
+        var url = "/v1/permission";
+        $.ajax({
+            headers: {
+                'X-Access-Token': window.localStorage.getItem("token") || ""
+            },
+            url: url,
+            type: "GET",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            statusCode: {
+                200: function(result) {
+                    if (!result.data) {
+                        $("#siteAdmin").hide();
+                        $("#teacherAdmin").hide();
+                    }
                 }
             }
         });

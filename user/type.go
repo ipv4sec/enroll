@@ -11,3 +11,8 @@ type User struct {
 
 	Tag int64  `json:"tag" remark:"正式状态" gorm:"DEFAULT:1;NOT NULL"` // 2^0 编辑状态 2^1 正式状态
 }
+
+type CensusResult struct {
+	SiteId int64 `json:"siteId"`
+	Num int64 `json:"num"`
+}

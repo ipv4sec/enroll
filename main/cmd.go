@@ -13,7 +13,6 @@ import (
 	"flag"
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
-	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -44,28 +43,14 @@ func main() {
 
 	router := gin.New()
 	router.Use(gin.Recovery())
-
-	router.GET("/example", func(c *gin.Context) {
-		header := c.Writer.Header()
-		header["Content-type"] = []string{"application/octet-stream"}
-		header["Content-Disposition"] = []string{"attachment; filename= example.csv"}
-
-		file, err := os.Open(config.Conf.Csv.Example)
-		if err != nil {
-			logger.Error("读取CSV样例文件失败:", err.Error())
-			c.Status(404)
-			return
-		}
-		defer file.Close()
-		io.Copy(c.Writer, file)
-	})
 	router.Static("/dist", "./node_modules")
+	router.Static("/uploads", "./uploads")
 	router.Use(static.Serve("/", static.LocalFile("./static", true)))
 
 	v1 := router.Group("/v1")
 	{
 		v1.Use(middleware.TokenChecker([]string{"/v1/token", "/v1/file"}))
-		v1.Use(middleware.AdminChecker([]string{"/v1/site"}))
+		// v1.Use(middleware.AdminChecker([]string{"/v1/site"})) // TODO 暂时修改
 
 		v1.POST("/file", csv.Upload)
 		v1.GET("/file", csv.Parse)
@@ -90,6 +75,11 @@ func main() {
 		v1.GET("/site", site.GetAll)
 		v1.DELETE("/site", site.DeleteBySiteId)
 		v1.POST("/site", site.Add)
+
+		v1.GET("/search", user.GetByCardNum)
+		v1.GET("/census", user.GetCensusResult)
+
+		v1.GET("/permission", user.GetPermission)
 
 	}
 

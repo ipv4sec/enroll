@@ -14,5 +14,4 @@ redis:
   db: 0
 
 csv:
-  example: D:\\Codes\\Enroll\\uploads\\example.csv
   uploaded: D:\\zed\\

@@ -2,4 +2,6 @@
 node_modules/
 .idea/
 
+static/.idea/
+
 go_build_cmd_go.exe

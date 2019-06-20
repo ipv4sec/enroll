@@ -29,8 +29,22 @@ func GetBySiteId(c *gin.Context) {
 		"data": result,
 		"message": "获取已导入数据成功",
 	})
+}
 
-
+func GetByCardNum(c *gin.Context) {
+	cardNum := c.Query("cardNum")
+	result, err := SearchByCardNum(cardNum)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": err.Error(),
+			"message": "服务器内部错误",
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"data": result,
+		"message": "获取搜索数据成功",
+	})
 }
 
 func Import(c *gin.Context) {
@@ -111,5 +125,29 @@ func ConfirmAll(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"message": "正式提交成功",
 		"affected": rowsAffected,
+	})
+}
+
+func GetCensusResult(c *gin.Context) {
+	adminId, _ := c.Get("adminId")
+	result, err := CensusByAdmin(adminId.(int64))
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": err.Error(),
+			"message": "服务器内部错误",
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"message": "获取统计成功",
+		"data": result,
+	})
+}
+
+func GetPermission(c *gin.Context) {
+	adminId, _ := c.Get("adminId")
+	c.JSON(200, gin.H{
+		"message": "获取统计成功",
+		"data": adminId.(int64) == 1,
 	})
 }

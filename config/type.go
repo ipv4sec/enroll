@@ -19,7 +19,6 @@ type Config struct {
 	Redis *redis.Options
 
 	Csv struct{
-		Example string
 		Uploaded string
 	}
 }

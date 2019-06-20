@@ -2,28 +2,37 @@ package csv
 
 import (
 	"encoding/csv"
-	"io"
-	"io/ioutil"
-	"strings"
+	"github.com/axgle/mahonia"
+	"os"
 )
 
-func Read(filename string) ([][]string, error) {
-	dat, err := ioutil.ReadFile(filename)
+func Read(csvPath string) ([][]string, error) {
+	//data, err := ioutil.ReadFile(filename)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//r := csv.NewReader(strings.NewReader(string(data[:])))
+
+	//var records [][]string
+	//for {
+	//	record, err := r.Read()
+	//	if err == io.EOF {
+	//		break
+	//	}
+	//	records = append(records, record)
+	//	if err != nil {
+	//		return records, err
+	//	}
+	//}
+	//return records, nil
+
+	file, err := os.Open(csvPath)
 	if err != nil {
 		return nil, err
 	}
-	r := csv.NewReader(strings.NewReader(string(dat[:])))
+	defer file.Close()
 
-	var records [][]string
-	for {
-		record, err := r.Read()
-		if err == io.EOF {
-			break
-		}
-		records = append(records, record)
-		if err != nil {
-			return records, err
-		}
-	}
-	return records, nil
+	decoder := mahonia.NewDecoder("gbk")
+	r := csv.NewReader(decoder.NewReader(file))
+	return r.ReadAll()
 }

@@ -46,3 +46,15 @@ func DeleteNotConfirmedUserByUserId(userId int64) error {
 func ConfirmUserBySiteId(siteId int64) int64 {
 	return UpdateTagBySiteId(2, siteId)
 }
+
+func SearchByCardNum(cardNum string) ([]*User, error) {
+	return FindByCardNum(cardNum)
+}
+
+func CensusByAdmin(admineId int64) ([]*CensusResult, error) {
+	//
+	if admineId == 1 {
+		return FindAllSiteCensus()
+	}
+	return FindSiteCensusByAdminId(admineId)
+}

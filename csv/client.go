@@ -2,8 +2,15 @@ package csv
 
 import (
 	"encoding/csv"
+	"enroll/config"
+	"enroll/logger"
 	"github.com/axgle/mahonia"
+	"github.com/satori/go.uuid"
+	"golang.org/x/text/encoding/simplifiedchinese"
+	"golang.org/x/text/transform"
+	"io/ioutil"
 	"os"
+	"strings"
 )
 
 func Read(csvPath string) ([][]string, error) {
@@ -35,4 +42,31 @@ func Read(csvPath string) ([][]string, error) {
 	decoder := mahonia.NewDecoder("gbk")
 	r := csv.NewReader(decoder.NewReader(file))
 	return r.ReadAll()
+}
+
+func Generate(data [][]string) (string, error) {
+	csvFilename := uuid.NewV4().String() + ".csv"
+	fp, err := os.Create(config.Conf.Csv.Generated + csvFilename)
+	if err != nil {
+		return csvFilename, err
+	}
+	defer fp.Close()
+	for i:=0; i < len(data); i++ {
+		line, err := utf82gdk(strings.Join(data[i], ","))
+		if err != nil {
+			logger.Error("写入文件时失败:", err.Error())
+			continue
+		}
+		fp.WriteString(line + "\n")
+	}
+	return csvFilename, nil
+}
+
+func utf82gdk(src string) (string, error) {
+	reader := transform.NewReader(strings.NewReader(src), simplifiedchinese.GBK.NewEncoder())
+	if buf, err := ioutil.ReadAll(reader); err != nil {
+		return "", err
+	} else {
+		return string(buf), nil
+	}
 }

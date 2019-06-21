@@ -45,11 +45,13 @@ func main() {
 	router.Use(gin.Recovery())
 	router.Static("/dist", "./node_modules")
 	router.Static("/uploads", "./uploads")
+	router.Static("/generates", "./generates")
+
 	router.Use(static.Serve("/", static.LocalFile("./static", true)))
 
 	v1 := router.Group("/v1")
 	{
-		v1.Use(middleware.TokenChecker([]string{"/v1/token", "/v1/file"}))
+		v1.Use(middleware.TokenChecker([]string{"/v1/token", "/v1/file", "/v1/download"}))
 		// v1.Use(middleware.AdminChecker([]string{"/v1/site"})) // TODO 暂时修改
 
 		v1.POST("/file", csv.Upload)
@@ -80,6 +82,8 @@ func main() {
 		v1.GET("/census", user.GetCensusResult)
 
 		v1.GET("/permission", user.GetPermission)
+
+		v1.GET("/download", user.DownloadCsvFile)
 
 	}
 

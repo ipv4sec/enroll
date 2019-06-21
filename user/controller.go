@@ -3,7 +3,10 @@ package user
 import (
 	"enroll/config"
 	"enroll/csv"
+	"enroll/logger"
 	"github.com/gin-gonic/gin"
+	"io"
+	"os"
 	"strconv"
 )
 
@@ -150,4 +153,30 @@ func GetPermission(c *gin.Context) {
 		"message": "获取统计成功",
 		"data": adminId.(int64) == 1,
 	})
+}
+
+func DownloadCsvFile(c *gin.Context) {
+	siteIdStr := c.Query("siteId")
+	siteId, err := strconv.ParseInt(siteIdStr, 10, 64)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": err.Error(),
+			"message": "参数错误",
+		})
+		return
+	}
+	csvFilename := GetDownloadCsvFilePathBySiteId(siteId)
+
+	header := c.Writer.Header()
+	header["Content-type"] = []string{"application/octet-stream"}
+	header["Content-Disposition"] = []string{"attachment; filename= example.csv"}
+
+	file, err := os.Open(config.Conf.Csv.Generated + csvFilename)
+	if err != nil {
+		logger.Error("读取CSV样例文件失败:", err.Error())
+		c.Status(404)
+		return
+	}
+	defer file.Close()
+	io.Copy(c.Writer, file)
 }

@@ -14,6 +14,12 @@ func FindById(id int64) *User {
 	return &user
 }
 
+func FindAll() ([]*User, error) {
+	var users []*User
+	err := mysql.Clinet.Find(&users).Error
+	return users, err
+}
+
 func SaveAll(users []*User) error {
 	records := []interface{}{}
 	for i:=0; i < len(users); i++ {

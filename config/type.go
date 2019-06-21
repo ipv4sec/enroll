@@ -20,6 +20,7 @@ type Config struct {
 
 	Csv struct{
 		Uploaded string
+		Generated string
 	}
 }
 

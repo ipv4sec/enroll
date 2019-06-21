@@ -10,5 +10,6 @@ require (
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/t-tiger/gorm-bulk-insert v0.0.0-20190401142620-ba33202b110e
+	golang.org/x/text v0.3.2
 	gopkg.in/yaml.v2 v2.2.2
 )

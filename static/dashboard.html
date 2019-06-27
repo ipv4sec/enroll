@@ -197,7 +197,6 @@
                                         <th>身份证号</th>
                                         <th>报考层次</th>
                                         <th>专业名称</th>
-                                        <th>操作</th>
                                     </tr>
                                     </thead>
                                     <tbody id="users"></tbody>
@@ -551,15 +550,6 @@
                         html += "<td>" + result.data[i]["num"] + "</td>";
                         html += "<td>" + result.data[i]["enroll"] + "</td>";
                         html += "<td>" + result.data[i]["major"] + "</td>";
-                        if (result.data[i]["tag"] === 2 ) {
-                            html += "<td><button type=\"button\" class=\"btn btn-sm btn-success\">" +
-                                "<span class=\"glyphicon glyphicon-exclamation-sign\" aria-hidden=\"true\"></span> 已提交, 无法操作" +
-                                "</button></td>";
-                        } else {
-                            html += "<td><button type=\"button\" class=\"btn btn-sm btn-danger\" onclick=\"fetchDeleteUserApi(" + result.data[i]["id"] + ")\">" +
-                                "<span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span> 删除" +
-                                "</button></td>";
-                        }
                         html += "</tr>";
                         $("#allImported").show();
                         $("#users").append(html);
@@ -594,15 +584,6 @@
                         html += "<td>" + result.data[i]["num"] + "</td>";
                         html += "<td>" + result.data[i]["enroll"] + "</td>";
                         html += "<td>" + result.data[i]["major"] + "</td>";
-                        if (result.data[i]["tag"] === 2 ) {
-                            html += "<td><button type=\"button\" class=\"btn btn-sm btn-success\">" +
-                                    "<span class=\"glyphicon glyphicon-exclamation-sign\" aria-hidden=\"true\"></span> 已提交, 无法操作" +
-                                    "</button></td>";
-                        } else {
-                            html += "<td><button type=\"button\" class=\"btn btn-sm btn-danger\" onclick=\"fetchDeleteUserApi(" + result.data[i]["id"] + ")\">" +
-                                    "<span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span> 删除" +
-                                    "</button></td>";
-                        }
                         html += "</tr>";
                         $("#allImported").show();
                         $("#users").append(html);

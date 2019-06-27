@@ -5,6 +5,8 @@ import (
 	"enroll/logger"
 	"enroll/site"
 	"errors"
+	"fmt"
+	"strings"
 )
 
 func SaveImportedCsvDatas(data [][]string, siteId int64) error {
@@ -22,7 +24,14 @@ func SaveImportedCsvDatas(data [][]string, siteId int64) error {
 			Major: data[i][3]}
 		users = append(users, &user)
 	}
-	return SaveAll(users)
+	err := SaveAll(users)
+	if err != nil {
+		str := err.Error()
+		str = strings.TrimPrefix(str, "Error 1062: Duplicate entry '")
+		str = strings.TrimSuffix(str, "' for key 'uix_users_num'")
+		return errors.New(fmt.Sprintf("身份证号码%s重复", str))
+	}
+	return nil
 }
 
 func GetUserBySiteId(siteId int64) ([]*User, error) {

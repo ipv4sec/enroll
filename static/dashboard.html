@@ -10,6 +10,7 @@
     <link rel="bookmark" href="/img/olives.png"/>
     <link rel="stylesheet" href="/css/notify.css">
     <link href="/dist/filepond/dist/filepond.min.css" rel="stylesheet" />
+    <link href="/dist/x-editable/dist/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet"/>
     <style>
         html {
             font-family: "PT Serif", Georgia, Times, "Times New Roman", serif;;
@@ -111,7 +112,7 @@
 
                         <div style="margin-top: 20px; margin-bottom: 20px;">
                             <hr />
-                            <button id="importCsvBtn" type="button" class="btn btn-black" onclick="fetchImportCsvFileApi()">
+                            <button id="importCsvBtn" type="button" class="btn btn-black" onclick="fetchImportModifiedUserApi()">
                                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> 导入文件内容
                             </button>
                         </div>
@@ -316,9 +317,11 @@
 <script src="/dist/jquery-filepond/filepond.jquery.js"></script>
 <script src="/dist/bootstrap-notify/bootstrap-notify.min.js"></script>
 <script src="/js/notify.js"></script>
+<script src="/dist/x-editable/dist/bootstrap3-editable/js/bootstrap-editable.min.js"></script>
 <script>
 
     var sites = {};
+    var users = {};
 
     $("#analyzeCsvBtn").prop('disabled', true);
     $("#importCsvBtn").prop('disabled', true);
@@ -360,7 +363,7 @@
         $("#analyzeCsvBtn").prop('disabled', false);
     });
 
-
+    $.fn.editable.defaults.mode = 'popup';
 
     if (window.localStorage.getItem("name") != null) {
         $("#userId").text(window.localStorage.getItem("name"));
@@ -386,12 +389,13 @@
             dataType: "json",
             statusCode: {
                 200: function(result) {
+                    users = result;
                     for (var i = 0; i < result.data.length; i++) {
                         var html = "<tr>";
-                        html += "<td>" + result.data[i][0] + "</td>";
-                        html += "<td>" + result.data[i][1] + "</td>";
-                        html += "<td>" + result.data[i][2] + "</td>";
-                        html += "<td>" + result.data[i][3] + "</td>";
+                        html += "<td><a>" + result.data[i][0] + "</a></td>";
+                        html += "<td><a>" + result.data[i][1] + "</a></td>";
+                        html += "<td><a>" + result.data[i][2] + "</a></td>";
+                        html += "<td><a>" + result.data[i][3] + "</a></td>";
                         html += "</tr>";
                         $("#analyzed").append(html);
                     }
@@ -399,6 +403,18 @@
                     $("#analyzeCsvBtn").prop('disabled', true);
                     $("#analyzedCsvTable").show();
                     $("#importCsvBtn").prop('disabled', false);
+
+                    for (i=0; i < $("#analyzed > tr").length; i++) {
+                        for (var j=0; j < $('#analyzed > tr:nth-child(' + (i+1)+ ') > td').length; j++) {
+                            $('#analyzed > tr:nth-child(' + (i+1)+ ') > td:nth-child(' + (j+1)+') > a').editable({
+                                type: 'text',
+                                title: '修改',
+                                success: function(response, newValue) {
+                                    users.data[$(this).parent().parent().index()][$(this).parent().index()] = newValue
+                                }
+                            })
+                        }
+                    }
                 },
                 400: function (result) {
                     return logger(result["responseJSON"]["message"], result["responseJSON"]["error"], "danger")
@@ -416,6 +432,28 @@
             url: url,
             type: "POST",
             dataType: "json",
+            statusCode: {
+                200: function(result) {
+                    $("#importCsvBtn").prop('disabled', true);
+                    return logger("导入成功", result["message"], "info")
+                },
+                400: function (result) {
+                    return logger(result["responseJSON"]["message"], result["responseJSON"]["error"], "danger")
+                }
+            }
+        });
+    }
+    function fetchImportModifiedUserApi() {
+        // 替换 fetchImportCsvFileApi
+        var url = "/v1/user";
+        $.ajax({
+            headers: {
+                'X-Access-Token': window.localStorage.getItem("token") || ""
+            },
+            url: url,
+            type: "POST",
+            dataType: "json",
+            data: JSON.stringify({"data": users.data, "siteId": window.localStorage.getItem("siteId")}),
             statusCode: {
                 200: function(result) {
                     $("#importCsvBtn").prop('disabled', true);

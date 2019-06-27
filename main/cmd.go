@@ -57,7 +57,8 @@ func main() {
 		v1.POST("/file", csv.Upload)
 		v1.GET("/file", csv.Parse)
 
-		v1.POST("/user", user.Import) // 导入CSV
+		// v1.POST("/user", user.Import) // 导入CSV
+		v1.POST("/user", user.ImportJson) // 导入JSON
 		v1.GET("/user", user.GetBySiteId)
 		v1.DELETE("/user", user.DeleteNotConfirmedUser) // 删除单个记录
 		v1.PUT("/user", user.ConfirmAll) // 正式提交

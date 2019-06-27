@@ -1,6 +1,7 @@
 package user
 
 import (
+	"encoding/json"
 	"enroll/config"
 	"enroll/csv"
 	"enroll/logger"
@@ -88,6 +89,43 @@ func Import(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"message": "导入成功",
 	})
+}
+
+func ImportJson(c *gin.Context) {
+	var param struct{
+		SiteId json.Number `json:"siteId" binding:"required"`
+		Data [][]string `json:"data" binding:"required"`
+	}
+	if err := c.BindJSON(&param); err != nil {
+		c.JSON(400, gin.H {
+			"error": err.Error(),
+			"message": "参数错误",
+		})
+		return
+	} else {
+		siteId, err := param.SiteId.Int64()
+		if err != nil {
+			c.JSON(400, gin.H {
+				"error": err.Error(),
+				"message": "参数错误",
+			})
+			return
+		}
+		err = SaveImportedCsvDatas(param.Data, siteId)
+		if err != nil {
+			c.JSON(400, gin.H{
+				"error": err.Error(),
+				"message": "导入失败",
+			})
+			return
+		}
+		c.JSON(200, gin.H{
+			"message": "导入成功",
+		})
+	}
+
+
+
 }
 
 func DeleteNotConfirmedUser(c *gin.Context) {

@@ -10,7 +10,7 @@ function logger(title, message, level) {
         message: message
     },{
         type: type,
-        delay: 5000,
+        delay: 8000,
         template: '<div data-notify="container" class="col-xs-11 col-sm-3 alert alert-{0}" role="alert">' +
             '<span data-notify="title">{1}</span>' +
             '<span data-notify="message">{2}</span>' +

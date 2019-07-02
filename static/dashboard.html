@@ -444,6 +444,7 @@
     }
     function fetchImportModifiedUserApi() {
         // 替换 fetchImportCsvFileApi
+        // TODO 替换
         var url = "/v1/user";
         $.ajax({
             headers: {
@@ -459,6 +460,31 @@
                     return logger("导入成功", result["message"], "info")
                 },
                 400: function (result) {
+                    console.log(result)
+                    users = result.responseJSON
+                    $("#analyzed > tr").remove();
+                    for (var i = 0; i < result.responseJSON.data.length; i++) {
+                        var html = "<tr>";
+                        html += "<td><a>" + result.responseJSON.data[i][0] + "</a></td>";
+                        html += "<td><a>" + result.responseJSON.data[i][1] + "</a></td>";
+                        html += "<td><a>" + result.responseJSON.data[i][2] + "</a></td>";
+                        html += "<td><a>" + result.responseJSON.data[i][3] + "</a></td>";
+                        html += "</tr>";
+
+                        $("#analyzed").append(html);
+                    }
+                    for (i=0; i < $("#analyzed > tr").length; i++) {
+                        for (var j=0; j < $('#analyzed > tr:nth-child(' + (i+1)+ ') > td').length; j++) {
+                            $('#analyzed > tr:nth-child(' + (i+1)+ ') > td:nth-child(' + (j+1)+') > a').editable({
+                                type: 'text',
+                                title: '修改',
+                                success: function(response, newValue) {
+                                    users.data[$(this).parent().parent().index()][$(this).parent().index()] = newValue
+                                }
+                            })
+                        }
+                    }
+
                     return logger(result["responseJSON"]["message"], result["responseJSON"]["error"], "danger")
                 }
             }

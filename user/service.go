@@ -34,6 +34,32 @@ func SaveImportedCsvDatas(data [][]string, siteId int64) error {
 	return nil
 }
 
+func SaveImportedCsvDatasReturnNotImportedDatas(data [][]string, siteId int64) ([][]string, error) {
+	users := []*User{}
+	for i:=0; i < len(data); i++ {
+		if len(data[i]) < 4 {
+			logger.Error("解析CSV错误, 跳过", data[i])
+			continue
+		}
+		user := User{
+			SiteId: siteId,
+			Name: data[i][0],
+			Num: data[i][1],
+			Enroll: data[i][2],
+			Major: data[i][3]}
+		users = append(users, &user)
+	}
+	errs := SaveArr(users)
+	notImported := [][]string{}
+	for i:=0; i < len(errs); i++ {
+		notImported = append(notImported, []string{errs[i].Data.Name, errs[i].Data.Num, errs[i].Data.Enroll, errs[i].Data.Major})
+	}
+	if len(notImported) != 0 {
+		return notImported, errors.New("导入数据部分失败, 表格数据已刷新, 点击导入按钮再次导入")
+	}
+	return notImported, nil
+}
+
 func GetUserBySiteId(siteId int64) ([]*User, error) {
 	if siteId == 0 {
 		return FindAll()

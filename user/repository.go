@@ -2,7 +2,10 @@ package user
 
 import (
 	"enroll/mysql"
+	"errors"
+	"fmt"
 	"github.com/t-tiger/gorm-bulk-insert"
+	"strings"
 )
 
 func FindById(id int64) *User {
@@ -26,6 +29,22 @@ func SaveAll(users []*User) error {
 		records = append(records, *users[i])
 	}
 	return gormbulk.BulkInsert(mysql.Clinet, records, 1000)
+}
+
+func SaveArr(users []*User) []DbErr {
+	errs := []DbErr{}
+	for i:=0; i < len(users); i++ {
+		err := mysql.Clinet.Save(&users[i]).Error
+		if err != nil {
+			str := strings.TrimPrefix(err.Error(), "Error 1062: Duplicate entry '")
+			err = errors.New(fmt.Sprintf("身份证号码%s重复", str[:strings.Index(str, "' for key")]))
+			errs = append(errs, DbErr{
+				Err: err,
+				Data: users[i],
+			})
+		}
+	}
+	return errs
 }
 
 func FindBySiteId(siteId int64) ([]*User, error) {

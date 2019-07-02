@@ -16,3 +16,8 @@ type CensusResult struct {
 	SiteId int64 `json:"siteId"`
 	Num int64 `json:"num"`
 }
+
+type DbErr struct {
+	Err error
+	Data *User
+}

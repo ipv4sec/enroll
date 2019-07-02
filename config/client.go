@@ -15,7 +15,7 @@ func Init(bytes []byte) {
 		logger.Error("Parse Config.Yaml Fail:", err.Error())
 		os.Exit(0)
 	}
-	logger.Info("Loaded Conf:", *Conf)
+	logger.Info("Loaded Conf")
 }
 
 func Datasource() string {

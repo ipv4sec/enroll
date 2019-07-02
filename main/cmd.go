@@ -18,14 +18,32 @@ import (
 	"path/filepath"
 )
 
-var conf = flag.String("config", "config.yaml", "Used Cofnig.Yaml")
+var (
+	conf = flag.String("config", "config.yaml", "Used Cofnig.Yaml")
+	build = ""
+)
 
 func main() {
 	flag.Parse()
 
+	logger.Info("版权所有 齐凤龙")
+	logger.Info("此软件未经许可禁止拷贝、修改。如有问题请联系技术支持")
+	logger.Info("联系方式: <qifenglong@foxmail.com>.")
+	logger.Info("联系方式: <ipv4sec@gmail.com>.")
+	logger.Info("联系方式: 18510088520.")
+
+	logger.Info("Copyright (c) 2019 Qi Fenglong Author.")
+	logger.Info("All rights reserved.")
+	logger.Info("FAQ: <qifenglong@foxmail.com>.")
+	logger.Info("FAQ: <ipv4sec@gmail.com>.")
+	logger.Info("FAQ: 18510088520.")
+
+	logger.Info("Build: " + build)
+
+
 	bytes, err := ioutil.ReadFile(filepath.Join(filepath.Dir(os.Args[0]), *conf))
 	if err != nil {
-		logger.Error("Read Config.Yaml Fail:", err.Error())
+		logger.Error("Read Err:", err.Error())
 		os.Exit(0)
 	}
 	config.Init(bytes)

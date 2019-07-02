@@ -111,16 +111,18 @@ func ImportJson(c *gin.Context) {
 			})
 			return
 		}
-		err = SaveImportedCsvDatas(param.Data, siteId)
+		data, err := SaveImportedCsvDatasReturnNotImportedDatas(param.Data, siteId)
 		if err != nil {
 			c.JSON(400, gin.H{
 				"error": err.Error(),
+				"data": data,
 				"message": "导入失败",
 			})
 			return
 		}
 		c.JSON(200, gin.H{
 			"message": "导入成功",
+			"data": data,
 		})
 	}
 

@@ -2,15 +2,15 @@ application:
   address: localhost:3000
 
 mysql:
-  host: gen8
+  host: localhost
   user: root
   pass: passwd
   port: 3306
   db: enroll
 
 redis:
-  addr: gen8:6379
-  password: passwd
+  addr: localhost:6379
+  password:
   db: 0
 
 csv:

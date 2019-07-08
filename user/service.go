@@ -57,7 +57,7 @@ func SaveImportedCsvDatasReturnNotImportedDatas(data [][]string, siteId int64) (
 	if len(notImported) != 0 {
 		return notImported, errors.New("导入数据部分失败, 表格数据已刷新, 点击导入按钮再次导入")
 	}
-	return notImported, nil
+	return nil, nil
 }
 
 func GetUserBySiteId(siteId int64) ([]*User, error) {

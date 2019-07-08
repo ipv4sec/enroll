@@ -10,7 +10,7 @@
     <link rel="bookmark" href="/img/olives.png"/>
     <link rel="stylesheet" href="/css/notify.css">
     <link href="/dist/filepond/dist/filepond.min.css" rel="stylesheet" />
-    <link href="/dist/x-editable/dist/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet"/>
+    <!--link href="/dist/x-editable/dist/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet"/-->
     <style>
         html {
             font-family: "PT Serif", Georgia, Times, "Times New Roman", serif;;
@@ -118,6 +118,10 @@
                             <hr />
                             <button id="importCsvBtn" type="button" class="btn btn-black" onclick="fetchImportModifiedUserApi()">
                                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> 导入文件内容
+                            </button>
+
+                            <button id="downloadErrCsvBtn" type="button" class="btn btn-black" onclick="downloadErrCsvFile()">
+                                <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> 下载错误CSV
                             </button>
                         </div>
                     </div>
@@ -321,13 +325,16 @@
 <script src="/dist/bootstrap-notify/bootstrap-notify.min.js"></script>
 <script src="/js/notify.js"></script>
 <script src="/dist/x-editable/dist/bootstrap3-editable/js/bootstrap-editable.min.js"></script>
+<!-- script src="/dist/xlsx/dist/xlsx.full.min.js"></script-->
 <script>
 
     var sites = {};
     var users = {};
+    var notImportedUrl = "";
 
     $("#analyzeCsvBtn").prop('disabled', true);
     $("#importCsvBtn").prop('disabled', true);
+    $("#downloadErrCsvBtn").prop('disabled', true);
     $("#analyzedCsvTable").hide();
     $("#allImported").hide();
 
@@ -450,6 +457,7 @@
         // 替换 fetchImportCsvFileApi
         // TODO 替换
         $("#importedMessage").show();
+        $("#downloadErrCsvBtn").prop('disabled', false);
         var url = "/v1/user";
         $.ajax({
             headers: {
@@ -468,6 +476,7 @@
                 400: function (result) {
                     console.log(result)
                     users = result.responseJSON
+                    notImportedUrl = result.responseJSON.url
                     $("#analyzed > tr").remove();
                     for (var i = 0; i < result.responseJSON.data.length; i++) {
                         var html = "<tr>";
@@ -903,6 +912,32 @@
     function downloadAllCsvFile() {
         window.location.href="/v1/download?siteId=" + window.localStorage.getItem("siteId")
     }
+
+    function downloadErrCsvFile() {
+        window.location.href="/generates/" + notImportedUrl;
+
+        // let headers = ['姓名','\t身份证号','报考层次','专业名称'];
+        // let dataSource = JSON.parse(JSON.stringify(users.data));
+        // for (let i=0; i< dataSource.length; i++ ) {
+        //     for (let j=0; j< dataSource[i].length ;j++) {
+        //         dataSource[i][j] = "\t" + dataSource[i][j]
+        //     }
+        // }
+        // let csv = '\uFEFF';
+        // csv += headers.join(',') + '\r\n';
+        // dataSource.forEach( (record) => {
+        //     csv += (record.join(',') + '\r\n');
+        // });
+        // console.log(dataSource);
+        // const blob = new window.Blob([csv], { type: 'text/csv,charset=UTF-8'});
+        // const downloadCsv = document.createElement("a");
+        // downloadCsv.href = window.URL.createObjectURL(blob);
+        // downloadCsv.setAttribute("download", "未导入的出错数据.csv");
+        // downloadCsv.click();
+        // window.URL.revokeObjectURL(blob);
+    }
+
+
 </script>
 </body>
 </html>

@@ -113,16 +113,29 @@ func ImportJson(c *gin.Context) {
 		}
 		data, err := SaveImportedCsvDatasReturnNotImportedDatas(param.Data, siteId)
 		if err != nil {
+			csvData :=[][]string{{"姓名","身份证号","报考层次", "专业名称"}}
+			for i:=0; i < len(data); i++ {
+				csvData = append(csvData, data[i])
+			}
+			csvFilename, err2 := csv.Generate(csvData)
+			if err2 != nil {
+				logger.Error("生成CSV失败:", err2.Error())
+			}
+
 			c.JSON(400, gin.H{
 				"error": err.Error(),
 				"data": data,
 				"message": "导入失败",
+				"url": csvFilename,
 			})
 			return
 		}
+
+
+
+
 		c.JSON(200, gin.H{
 			"message": "导入成功",
-			"data": data,
 		})
 	}
 

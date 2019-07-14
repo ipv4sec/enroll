@@ -139,7 +139,7 @@
                             <h5>选择导出</h5>
                             <div class="row" style="margin-top: 20px; padding-bottom: 20px;">
                                 <div class="col-md-4">
-                                    <select class="form-control" id="optionSites">
+                                    <select class="form-control" id="optionDownloadSites">
                                     </select>
                                     <br />
                                     <button type="button" class="btn btn-black" onclick="downloadCsvFile()"><span
@@ -708,10 +708,15 @@
                         html += "</tr>";
                         $("#sites").append(html);
                     }
+                    console.log(sites);
 
                     $("#optionSites option").remove();
                     for (var siteId in sites) {
                         $("#optionSites").append("<option value='"+siteId+"'>"+sites[siteId]+"</option>");
+                    }
+                    $("#optionDownloadSites option").remove();
+                    for (var siteId in sites) {
+                        $("#optionDownloadSites").append("<option value='"+siteId+"'>"+sites[siteId]+"</option>");
                     }
                 },
                 403: function () {
@@ -906,7 +911,7 @@
     }
     
     function downloadCsvFile() {
-        window.location.href="/v1/download?siteId=" + $("#optionSites").val()
+        window.location.href="/v1/download?siteId=" + $("#optionDownloadSites").val()
     }
     
     function downloadAllCsvFile() {

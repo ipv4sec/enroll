@@ -13,7 +13,7 @@
     "bootstrap": "^3.4.1",
     "bootstrap-notify": "github:mouse0270/bootstrap-notify",
     "filepond": "4.3.9",
-    "jquery": "^1.12.4",
+    "jquery": "^3.4.0",
     "jquery-filepond": "^1.0.0",
     "x-editable": "^1.5.1",
     "xlsx": "^0.14.3"

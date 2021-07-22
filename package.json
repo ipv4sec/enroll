@@ -16,6 +16,6 @@
     "jquery": "^1.12.4",
     "jquery-filepond": "^1.0.0",
     "x-editable": "^1.5.1",
-    "xlsx": "^0.14.3"
+    "xlsx": "^0.17.0"
   }
 }
